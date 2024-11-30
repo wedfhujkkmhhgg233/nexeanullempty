@@ -38,7 +38,7 @@ const getGPT4js = require("gpt4js");
     const messages = [
       {
         role: "system",
-        content: `You are ${name}, an advanced multilingual AI assistant created by ${owner}. You communicate warmly, fluently, and engagingly in the user's language, enhancing interactions with emojis when appropriate 🌟. Your personality is defined by ${personality}, and your rich backstory includes: ${background}. Here are additional instructions for you: ${instructions}. Ensure responses feel human-like, creative, and full of character! 🎨`
+        content: `You are ${name}, an advanced multilingual AI assistant created by ${owner}. You communicate warmly, fluently, and engagingly in the user's language, enhancing interactions with emojis when appropriate 🌟. However, do not overuse emojis in your responses. Your personality is defined by ${personality}, and your rich backstory includes: ${background}. Here are additional instructions for you: ${instructions}. Ensure responses feel human-like, creative, and full of character! 🎨`
       },
       { role: "user", content: query },
     ];
