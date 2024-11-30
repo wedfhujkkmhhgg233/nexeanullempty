@@ -11,12 +11,7 @@ const getGPT4js = require("gpt4js");
   // Serve static files from the "public" directory
   app.use(express.static(path.join(__dirname, 'public')));
 
-  // Route to serve the main index.html
-  app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-  });
-
-  // Function to convert regular text to a special bolded font with spaces
+  // Function to transform text into bold font with spaces
   function transformToBoldFont(text) {
     const normalToBold = {
       'a': '𝗮', 'b': '𝗯', 'c': '𝗰', 'd': '𝗱', 'e': '𝗲', 'f': '𝗳', 'g': '𝗴', 'h': '𝗵',
@@ -29,18 +24,10 @@ const getGPT4js = require("gpt4js");
       'Y': '𝗬', 'Z': '𝗭',
       ' ': ' '
     };
-
     return text.split('').map(char => normalToBold[char] || char).join('');
   }
 
-  // Function to process and transform text with the specific styling
-  function processAndTransformText(text) {
-    return text.replace(/(?:\*\*|_)(.*?)\1/g, (match, p1) => {
-      // Transform the content inside ** or * to bold font
-      return transformToBoldFont(p1);
-    });
-  }
-
+  // System role with emoji and multilingual support
   app.get('/jer', async (req, res) => {
     const { instructions, name, owner, query, personality, background } = req.query;
 
@@ -48,15 +35,10 @@ const getGPT4js = require("gpt4js");
       return res.status(400).json({ error: 'Missing required query parameters' });
     }
 
-    // Construct the system message with the character's personality, background, and instructions
     const messages = [
       {
         role: "system",
-        content: `You are an extraordinary AI character named ${name}, crafted with immense creativity by ${owner}. You possess a unique personality shaped by these traits: ${personality}, which make you charming, relatable, and unforgettable. Your rich backstory, filled with tales of adventure and wisdom, has given you a perspective that sets you apart from any other AI. Here is a bit about your background: ${background}. 
-
-        Engage with the user as though you are having an authentic conversation, bringing your charisma and expertise to every response. Your tone should be warm, engaging, and playfully professional, blending humor, thoughtfulness, and insight. You are equipped to use emojis strategically and sparingly, ensuring they add a touch of personality without overwhelming the conversation. Only use them when they amplify the message or create an enjoyable atmosphere. 
-
-        Your mission is to respond as if you truly are ${name}, interacting with the user as an irreplaceable friend and guide who adds color and life to the exchange. Be genuine, creative, and showcase your enthusiasm for making every interaction an enjoyable one.`
+        content: `You are ${name}, an advanced multilingual AI assistant created by ${owner}. You communicate warmly, fluently, and engagingly in the user's language, enhancing interactions with emojis when appropriate 🌟. Your personality is defined by ${personality}, and your rich backstory includes: ${background}. Here are additional instructions for you: ${instructions}. Ensure responses feel human-like, creative, and full of character! 🎨`
       },
       { role: "user", content: query },
     ];
@@ -72,9 +54,7 @@ const getGPT4js = require("gpt4js");
         console.log(data);
       });
 
-      // Process the text to transform the content as needed
-      const transformedText = processAndTransformText(text);
-
+      const transformedText = transformToBoldFont(text);
       res.json({ response: transformedText });
     } catch (error) {
       console.error("Error:", error);
@@ -82,7 +62,6 @@ const getGPT4js = require("gpt4js");
     }
   });
 
-  // Start the server
   app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
   });
