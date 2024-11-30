@@ -1,5 +1,5 @@
 const express = require('express');
-const GPT4js = require('GPT4js'); // Ensure you have the correct import for GPT4js
+const GPT4js = require('gpt4js'); // Ensure you have the correct import for GPT4js
 const path = require('path');
 
 const app = express();
