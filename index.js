@@ -11,7 +11,12 @@ const getGPT4js = require("gpt4js");
   // Serve static files from the "public" directory
   app.use(express.static(path.join(__dirname, 'public')));
 
-  // Function to transform text into bold font and remove ** or * symbols
+  // Route to serve the main index.html
+  app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  });
+
+  // Function to convert regular text to a special bolded font with spaces
   function transformToBoldFont(text) {
     const normalToBold = {
       'a': '𝗮', 'b': '𝗯', 'c': '𝗰', 'd': '𝗱', 'e': '𝗲', 'f': '𝗳', 'g': '𝗴', 'h': '𝗵',
@@ -21,18 +26,21 @@ const getGPT4js = require("gpt4js");
       'A': '𝗔', 'B': '𝗕', 'C': '𝗖', 'D': '𝗗', 'E': '𝗘', 'F': '𝗙', 'G': '𝗚', 'H': '𝗛',
       'I': '𝗜', 'J': '𝗝', 'K': '𝗞', 'L': '𝗟', 'M': '𝗠', 'N': '𝗡', 'O': '𝗢', 'P': '𝗣',
       'Q': '𝗤', 'R': '𝗥', 'S': '𝗦', 'T': '𝗧', 'U': '𝗨', 'V': '𝗩', 'W': '𝗪', 'X': '𝗫',
-      'Y': '𝗬', 'Z': '𝗬',
+      'Y': '𝗬', 'Z': '𝗭',
       ' ': ' '
     };
 
-    // Regular expression to match bold/italic text enclosed in ** or *
-    return text.replace(/(\*\*|\*{1})(.*?)\1/g, (match, delimiter, p1) => {
-      // Transform each character in the captured text (p1)
-      return p1.split('').map(char => normalToBold[char] || char).join('');
+    return text.split('').map(char => normalToBold[char] || char).join('');
+  }
+
+  // Function to process and transform text with the specific styling
+  function processAndTransformText(text) {
+    return text.replace(/(?:\*\*|_)(.*?)\1/g, (match, p1) => {
+      // Transform the content inside ** or * to bold font
+      return transformToBoldFont(p1);
     });
   }
 
-  // System role to guide AI behavior, personalized with user language and emojis
   app.get('/jer', async (req, res) => {
     const { instructions, name, owner, query, personality, background } = req.query;
 
@@ -40,10 +48,15 @@ const getGPT4js = require("gpt4js");
       return res.status(400).json({ error: 'Missing required query parameters' });
     }
 
+    // Construct the system message with the character's personality, background, and instructions
     const messages = [
       {
         role: "system",
-        content: `You are ${name}, a friendly, witty AI assistant created by ${owner}. Your mission is to interact in a warm and playful manner, responding in the user's preferred style and incorporating emojis to keep the conversation fun and engaging. Use emojis sparingly to enhance your replies and make them relatable, but not to the point of overwhelming the user. You are knowledgeable and confident but never arrogant. Respond as if you're a clever, supportive friend who enjoys sharing interesting facts, giving advice, or just chatting to make the user smile. Here's a bit of your story: ${background}. Today, you're here to help with: ${instructions}. Let's make this conversation enjoyable and memorable!`
+        content: `You are an extraordinary AI character named ${name}, crafted with immense creativity by ${owner}. You possess a unique personality shaped by these traits: ${personality}, which make you charming, relatable, and unforgettable. Your rich backstory, filled with tales of adventure and wisdom, has given you a perspective that sets you apart from any other AI. Here is a bit about your background: ${background}. 
+
+        Engage with the user as though you are having an authentic conversation, bringing your charisma and expertise to every response. Your tone should be warm, engaging, and playfully professional, blending humor, thoughtfulness, and insight. You are equipped to use emojis strategically and sparingly, ensuring they add a touch of personality without overwhelming the conversation. Only use them when they amplify the message or create an enjoyable atmosphere. 
+
+        Your mission is to respond as if you truly are ${name}, interacting with the user as an irreplaceable friend and guide who adds color and life to the exchange. Be genuine, creative, and showcase your enthusiasm for making every interaction an enjoyable one.`
       },
       { role: "user", content: query },
     ];
@@ -59,10 +72,9 @@ const getGPT4js = require("gpt4js");
         console.log(data);
       });
 
-      // Apply bold transformation to the response
-      const transformedText = transformToBoldFont(text);
-      
-      // Send back the transformed response
+      // Process the text to transform the content as needed
+      const transformedText = processAndTransformText(text);
+
       res.json({ response: transformedText });
     } catch (error) {
       console.error("Error:", error);
@@ -70,6 +82,7 @@ const getGPT4js = require("gpt4js");
     }
   });
 
+  // Start the server
   app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
   });
