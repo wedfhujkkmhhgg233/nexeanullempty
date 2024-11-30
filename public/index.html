@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jer.Ai</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.0/dist/tailwind.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+</head>
+<body class="bg-white font-sans leading-normal tracking-normal">
+  <div class="container mx-auto p-4">
+    <header class="text-center mb-6">
+      <h1 class="text-5xl font-bold text-gray-800">Jer.Ai</h1>
+      <p class="text-lg text-gray-600">Your Ai Prompt Generator</p>
+    </header>
+    <div class="max-w-md mx-auto p-6 bg-gray-100 rounded-lg shadow-md">
+      <h2 class="text-2xl font-semibold mb-4">Generate AI Responses</h2>
+      <form id="form" class="space-y-4">
+        <input type="text" id="name" class="w-full p-2 border border-gray-300 rounded-md" placeholder="Character Name" required>
+        <input type="text" id="owner" class="w-full p-2 border border-gray-300 rounded-md" placeholder="Owner Name" required>
+        <input type="text" id="instructions" class="w-full p-2 border border-gray-300 rounded-md" placeholder="Instructions" required>
+        <input type="text" id="query" class="w-full p-2 border border-gray-300 rounded-md" placeholder="User Query" required>
+        <input type="text" id="personality" class="w-full p-2 border border-gray-300 rounded-md" placeholder="Personality Traits" required>
+        <input type="text" id="background" class="w-full p-2 border border-gray-300 rounded-md" placeholder="Background Info" required>
+        <button type="submit" class="w-full py-2 bg-blue-500 text-white font-bold rounded-md hover:bg-blue-600">Generate</button>
+      </form>
+      <div id="result" class="mt-4 hidden">
+        <h3 class="text-xl font-semibold">Generated URL</h3>
+        <textarea id="generatedUrl" class="w-full p-2 border border-gray-300 rounded-md mt-2" readonly></textarea>
+        <button id="copyButton" class="w-full py-2 bg-green-500 text-white font-bold rounded-md hover:bg-green-600 mt-2">Copy to Clipboard</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('form').addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      const name = document.getElementById('name').value;
+      const owner = document.getElementById('owner').value;
+      const instructions = document.getElementById('instructions').value;
+      const query = document.getElementById('query').value;
+      const personality = document.getElementById('personality').value;
+      const background = document.getElementById('background').value;
+
+      // Construct the URL with the query parameters
+      const url = `http://localhost:3000/jer?name=${name}&owner=${owner}&instructions=${instructions}&query=${query}&personality=${personality}&background=${background}`;
+
+      // Display the generated URL in the textarea and show the result div
+      const resultDiv = document.getElementById('result');
+      const generatedUrl = document.getElementById('generatedUrl');
+      generatedUrl.value = url;
+      resultDiv.classList.remove('hidden');
+
+      // Add copy functionality to the button
+      document.getElementById('copyButton').addEventListener('click', function() {
+        navigator.clipboard.writeText(url).then(() => {
+          Swal.fire('Copied!', 'The URL has been copied to clipboard.', 'success');
+        });
+      });
+    });
+  </script>
+</body>
+</html>
